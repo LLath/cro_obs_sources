@@ -1,0 +1,41 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vue to Github Pages
+      # You may pin to the exact commit or the version.
+      # uses: xRealNeon/VuePagesAction@803b88b34a8c4177efad63425155f35419e3a9c6
+        uses: xRealNeon/VuePagesAction@1.0.1
+        with:
+          # Your username
+          username: LLath
+          # Your reponame
+          reponame: cro_obs_sources
+          # Your Github token
+          token: ${{secrets.GITHUB_TOKEN}}
