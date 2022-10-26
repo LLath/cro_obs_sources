@@ -1,5 +1,5 @@
 {
-  "name": "cro-shopify-browser-source",
+  "name": "cro-browser-source",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
