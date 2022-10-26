@@ -32,7 +32,7 @@ jobs:
           node-version: 16
 
       - name: Install dependencies
-        uses: bahmutov/npm-install@v3
+        uses: bahmutov/npm-install@v1
 
       - name: Build project
         run: export VITE_TWITCH_CLIENT_ID=${{secrets.VITE_TWITCH_CLIENT_ID}} && export VITE_TWITCH_CLIENT_SECRET=${{secrets.VITE_TWITCH_CLIENT_SECRET}} && npm run build
