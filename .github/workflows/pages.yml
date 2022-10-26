@@ -58,6 +58,8 @@ jobs:
       - name: Deploy
         run: |
           cd dist
+          git config --global user.email "llath.pr@gmail.com"
+          git config --global user.name "Llath"
           git init
           git add -A
           git commit -m 'publish gh page'
