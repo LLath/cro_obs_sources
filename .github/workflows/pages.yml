@@ -58,6 +58,7 @@ jobs:
       - name: Deploy
         run: |
           cd dist
+          ln -s index.html 404.html
           git config --global user.email "llath.pr@gmail.com"
           git config --global user.name "Llath"
           git config --global init.defaultBranch "gh-pages"
@@ -66,17 +67,3 @@ jobs:
           git commit -m 'publish gh page'
           git push -f https://LLath:${{ secrets.GITHUB_TOKEN }}@github.com/LLath/cro_obs_sources.git gh-pages
         shell: bash
-  # build_vue:
-  #   runs-on: ubuntu-latest
-  #   name: Build Vue
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - id: Build-Vue
-  #       uses: xRealNeon/VuePagesAction@1.0.1
-  #       with:
-  #         username: "LLath"
-  #         reponame: "cro_obs_sources"
-  #         token: ${{ secrets.GITHUB_TOKEN }} # Leave this line unchanged
-  #       env:
-  #         VITE_TWITCH_CLIENT_ID: ${{secrets.VITE_TWITCH_CLIENT_ID}}
-  #         VITE_TWITCH_CLIENT_SECRET: ${{secrets.VITE_TWITCH_CLIENT_SECRET}}
