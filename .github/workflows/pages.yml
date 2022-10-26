@@ -44,7 +44,6 @@ jobs:
           path: ./dist
 
   deploy:
-    using: "composite"
     name: Deploy
     needs: build
     runs-on: ubuntu-latest
