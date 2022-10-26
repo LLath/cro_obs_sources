@@ -37,11 +37,11 @@ jobs:
       - name: Build project
         run: export VITE_TWITCH_CLIENT_ID=${{secrets.VITE_TWITCH_CLIENT_ID}} && export VITE_TWITCH_CLIENT_SECRET=${{secrets.VITE_TWITCH_CLIENT_SECRET}} && npm run build
 
-      - name: Upload production-ready build files
-        uses: actions/upload-artifact@v2
-        with:
-          name: production-files
-          path: ./dist
+      # - name: Upload production-ready build files
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: production-files
+      #     path: ./dist
 
   deploy:
     name: Deploy
@@ -49,17 +49,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: production-files
-          path: ./dist
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+      shell: bash
+      run: |
+        cd dist
+        git init
+        git add -A
+        git commit -m publish gh page
+        git push -f https://LLath:${{ secrets.GITHUB_TOKEN }}@github.com/LLath/cro_obs_sources.git master:gh-pages
   # build_vue:
   #   runs-on: ubuntu-latest
   #   name: Build Vue
