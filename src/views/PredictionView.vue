@@ -29,7 +29,7 @@ export default {
         import.meta.env.VITE_TWITCH_CLIENT_ID
       }&redirect_uri=${redirect_uri}&scope=${encodeURIComponent(
         "channel:read:predictions"
-      )}+openid&state=${this.CSRF_TOKEN}`;
+      )}&state=${this.CSRF_TOKEN}`;
 
       localStorage.CSRF_TOKEN = this.CSRF_TOKEN;
     }
