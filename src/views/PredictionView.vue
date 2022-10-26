@@ -14,8 +14,12 @@ export default {
     };
   },
   async created() {
+    let redirect_uri = "https://llath.github.io/cro_obs_sources/prediction";
     if (localStorage.login) {
       this.isLoggedIn = localStorage.login;
+    }
+    if (import.meta.env.DEV) {
+      redirect_uri = "http://localhost:3000/cro_obs_sources/prediction";
     }
     this.CSRF_TOKEN = localStorage.CSRF_TOKEN;
     if (this.twitchResponse?.error) {
@@ -23,7 +27,7 @@ export default {
       this.CSRF_TOKEN = this.generateRandomString(25);
       this.authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${
         import.meta.env.VITE_TWITCH_CLIENT_ID
-      }&redirect_uri=http://localhost:3000/cro_obs_sources/prediction&scope=${encodeURIComponent(
+      }&redirect_uri=${redirect_uri}&scope=${encodeURIComponent(
         "channel:read:predictions"
       )}+openid&state=${this.CSRF_TOKEN}`;
 
