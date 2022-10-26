@@ -64,7 +64,7 @@ jobs:
           git init
           git add -A
           git commit -m 'publish gh page'
-          git push -f https://LLath:${{ secrets.GITHUB_TOKEN }}@github.com/LLath/cro_obs_sources.git
+          git push -f https://LLath:${{ secrets.GITHUB_TOKEN }}@github.com/LLath/cro_obs_sources.git gh-pages
         shell: bash
   # build_vue:
   #   runs-on: ubuntu-latest
