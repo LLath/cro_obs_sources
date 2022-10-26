@@ -18,15 +18,58 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Single deploy job since we're just deploying
-  build_vue:
+  # source: https://github.com/sitek94/vite-deploy-demo
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    name: Build Vue
-    steps:
-    - uses: actions/checkout@v2
-    - id: Build-Vue
-      uses: xRealNeon/VuePagesAction@1.0.1
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+    - name: Setup Node
+      uses: actions/setup-node@v1
       with:
-        username: 'LLath'
-        reponame: 'cro_obs_sources'
-        token: ${{ secrets.GITHUB_TOKEN }} # Leave this line unchanged
+        node-version: 16
+
+    - name: Install dependencies
+      uses: bahmutov/npm-install@v1
+
+    - name: Build project
+      run: export VITE_TWITCH_CLIENT_ID=${{secrets.VITE_TWITCH_CLIENT_ID}} && export VITE_TWITCH_CLIENT_SECRET=${{secrets.VITE_TWITCH_CLIENT_SECRET}} && npm run build
+
+    - name: Upload production-ready build files
+      uses: actions/upload-artifact@v2
+      with:
+        name: production-files
+        path: ./dist
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: hithub.ref == "refs/head/main"
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: production-files
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+  # build_vue:
+  #   runs-on: ubuntu-latest
+  #   name: Build Vue
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - id: Build-Vue
+  #       uses: xRealNeon/VuePagesAction@1.0.1
+  #       with:
+  #         username: "LLath"
+  #         reponame: "cro_obs_sources"
+  #         token: ${{ secrets.GITHUB_TOKEN }} # Leave this line unchanged
+  #       env:
+  #         VITE_TWITCH_CLIENT_ID: ${{secrets.VITE_TWITCH_CLIENT_ID}}
+  #         VITE_TWITCH_CLIENT_SECRET: ${{secrets.VITE_TWITCH_CLIENT_SECRET}}
