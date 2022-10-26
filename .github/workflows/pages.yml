@@ -25,30 +25,37 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
 
       - name: Install dependencies
-        uses: bahmutov/npm-install@v1
+        uses: bahmutov/npm-install@v3
 
       - name: Build project
         run: export VITE_TWITCH_CLIENT_ID=${{secrets.VITE_TWITCH_CLIENT_ID}} && export VITE_TWITCH_CLIENT_SECRET=${{secrets.VITE_TWITCH_CLIENT_SECRET}} && npm run build
 
-      # - name: Upload production-ready build files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: production-files
-      #     path: ./dist
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v2
+        with:
+          name: production-files
+          path: ./dist
 
   deploy:
+    using: "composite"
     name: Deploy
     needs: build
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: production-files
+          path: ./dist
+
       - name: Deploy
         run: |
           cd dist
