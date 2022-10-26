@@ -60,10 +60,11 @@ jobs:
           cd dist
           git config --global user.email "llath.pr@gmail.com"
           git config --global user.name "Llath"
+          git config --global init.defaultBranch "gh-pages"
           git init
           git add -A
           git commit -m 'publish gh page'
-          git push -f https://LLath:${{ secrets.GITHUB_TOKEN }}@github.com/LLath/cro_obs_sources.git main:gh-pages
+          git push -f https://LLath:${{ secrets.GITHUB_TOKEN }}@github.com/LLath/cro_obs_sources.git
         shell: bash
   # build_vue:
   #   runs-on: ubuntu-latest
