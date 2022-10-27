@@ -35,10 +35,11 @@ export default {
     }
 
     const { access_token, state, token_type } = this.twitchResponse;
-    if (state !== this.CSRF_TOKEN) {
-      console.log("Not the same");
-      return;
-    }
+    // TODO: CSRF_TOKEN doe not work 100%
+    // if (state !== this.CSRF_TOKEN) {
+    //   console.log("Not the same");
+    //   return;
+    // }
     const twitchId = import.meta.env.VITE_TWITCH_CLIENT_ID;
     const twitchSecret = access_token;
     const headers = {
@@ -103,6 +104,7 @@ export default {
     const activePrediction = data.shift();
     this.leftPrediction = activePrediction.outcomes[0];
     this.rightPrediction = activePrediction.outcomes[1];
+    console.log({ activePrediction });
   },
   async mounted() {},
   watch: {},
