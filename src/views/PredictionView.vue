@@ -22,6 +22,7 @@ export default {
       redirect_uri = "http://localhost:3000/cro_obs_sources/prediction";
     }
     this.CSRF_TOKEN = localStorage.CSRF_TOKEN;
+
     if (this.twitchResponse?.error) {
       console.log("ERROR:", this.twitchResponse.error);
       this.CSRF_TOKEN = this.generateRandomString(25);
@@ -35,7 +36,7 @@ export default {
     }
 
     const { access_token, state, token_type } = this.twitchResponse;
-    // TODO: CSRF_TOKEN doe not work 100%
+    // TODO: CSRF_TOKEN does not work 100%
     // if (state !== this.CSRF_TOKEN) {
     //   console.log("Not the same");
     //   return;
@@ -97,14 +98,14 @@ export default {
       ],
     };
 
-    if (data === null) {
+    if (data === null && import.meta.env.PROD) {
       console.log("ERROR: no predictions to fetch");
       return;
     }
     const activePrediction = data.shift();
     this.leftPrediction = activePrediction.outcomes[0];
     this.rightPrediction = activePrediction.outcomes[1];
-    console.log({ activePrediction });
+    // console.log({ activePrediction });
   },
   async mounted() {},
   watch: {},

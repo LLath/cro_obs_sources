@@ -19,6 +19,19 @@ export default {
   watch: {},
   methods: {
     calculatePercent(left, right) {
+      console.log(import.meta.env.DEV);
+      if (import.meta.env.DEV) {
+        let devCounter = 0;
+        setInterval(() => {
+          if (devCounter == 98) {
+            devCounter = 0;
+          }
+          this.leftPercent = devCounter + 1;
+          this.rightPercent = devCounter + 2;
+          devCounter += 1;
+          return [devCounter + 1, devCounter + 2];
+        }, 500);
+      }
       const gesamt = left + right;
       const leftP = Math.round((left / gesamt) * 100);
       const rightP = Math.round((right / gesamt) * 100);
@@ -38,17 +51,17 @@ export default {
 <template>
   <div class="predictionTitleContainer">
     <h3>{{ checkNameLength(left.title) }}</h3>
-    <h3>{{ checkNameLength(right.title) }}</h3>
+    <h3>Team B</h3>
   </div>
   <div class="predictionContainer">
     <div class="leftPrediction">
       <div id="predictionNumber">
-        <span>{{ leftPercent }}%</span>
+        <div>{{ leftPercent }}%</div>
       </div>
     </div>
     <div class="rightPrediction">
       <div id="predictionNumber">
-        <span>{{ rightPercent }}%</span>
+        <div>{{ rightPercent }}%</div>
       </div>
     </div>
   </div>
@@ -82,8 +95,6 @@ export default {
   text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black,
     1px 1px 0 black;
   font-weight: bold;
-  text-align: center;
-  font-family: "FUTURA";
 }
 .predictionTitleContainer {
   display: flex;
@@ -91,13 +102,16 @@ export default {
   justify-content: space-between;
 }
 .predictionTitleContainer h3 {
+  /* center font */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   background-size: auto;
   background-repeat: no-repeat;
   background-position: center;
-  text-align: center;
-  width: 15rem;
-  height: 3rem;
-  padding-top: 1.2rem;
+  width: 172px;
+  height: 45px;
   margin: auto 13.55rem 0.5rem 13.55rem;
   font-size: 1.5rem;
 }
@@ -116,11 +130,7 @@ export default {
   margin: auto 9.2rem 0 9.2rem;
 }
 #predictionNumber {
-  width: 10rem;
-  height: 5rem;
-  scale: 1.1;
-  padding-top: 0.3rem;
-  font-size: 3rem;
+  /* scale: 2; */
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -129,5 +139,17 @@ export default {
 }
 .rightPrediction #predictionNumber {
   background-image: url("../assets/Prediction_B_Number.png");
+}
+#predictionNumber div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 3rem;
+
+  text-align: right;
+
+  width: 172px;
+  height: 67px;
 }
 </style>
