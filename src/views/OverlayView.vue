@@ -10,7 +10,7 @@ export default {
   },
   data() {
     return {
-      page: "scoreTable",
+      page: "ingame",
     };
   },
   mounted() {
