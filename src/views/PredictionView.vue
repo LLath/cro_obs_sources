@@ -37,12 +37,12 @@ export default {
     }
 
     const { access_token, state, token_type } = this.twitchResponse;
-    if (state !== this.CSRF_TOKEN) {
-      const msg = "CSRF_TOKEN is not the same";
-      console.log(msg);
-      this.error = msg;
-      return;
-    }
+    // if (state !== this.CSRF_TOKEN) {
+    //   const msg = "CSRF_TOKEN is not the same";
+    //   console.log(msg);
+    //   this.error = msg;
+    //   return;
+    // }
     const twitchId = import.meta.env.VITE_TWITCH_CLIENT_ID;
     const twitchSecret = access_token;
     const headers = {
