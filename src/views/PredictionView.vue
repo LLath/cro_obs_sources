@@ -11,15 +11,16 @@ export default {
       authUrl: "",
       leftPrediction: "",
       rightPrediction: "",
+      error: "",
     };
   },
-  async created() {
+  async mounted() {
     let redirect_uri = "https://llath.github.io/cro_obs_sources/prediction";
     if (localStorage.login) {
       this.isLoggedIn = localStorage.login;
     }
     if (import.meta.env.DEV) {
-      redirect_uri = "http://localhost:3000/cro_obs_sources/prediction";
+      redirect_uri = "http://localhost:2833/cro_obs_sources/prediction";
     }
     this.CSRF_TOKEN = localStorage.CSRF_TOKEN;
 
@@ -36,11 +37,12 @@ export default {
     }
 
     const { access_token, state, token_type } = this.twitchResponse;
-    // TODO: CSRF_TOKEN does not work 100%
-    // if (state !== this.CSRF_TOKEN) {
-    //   console.log("Not the same");
-    //   return;
-    // }
+    if (state !== this.CSRF_TOKEN) {
+      const msg = "CSRF_TOKEN is not the same";
+      console.log(msg);
+      this.error = msg;
+      return;
+    }
     const twitchId = import.meta.env.VITE_TWITCH_CLIENT_ID;
     const twitchSecret = access_token;
     const headers = {
@@ -57,57 +59,8 @@ export default {
       console.log("ERROR: undefined user; access_token");
       return;
     }
-    const { data } = await fetch(
-      `https://api.twitch.tv/helix/predictions?broadcaster_id=${userId}`,
-      { headers }
-    ).then((v) => v.json());
-
-    const { data: _data } = {
-      data: [
-        {
-          id: "f6a64b42-02be-450f-9637-b22813720a57",
-          broadcaster_id: "123456",
-          broadcaster_name: "smartysmartmaster",
-          broadcaster_login: "smartysmartmaster",
-          title: "What level will I reach today?",
-          winning_outcome_id: null,
-          outcomes: [
-            {
-              id: "5cdf0e7a-fc1b-4562-aa62-16ce70173ea7",
-              title: "Pandaleo102222",
-              users: 1,
-              channel_points: 5000,
-              top_predictors: null,
-              color: "BLUE",
-            },
-            {
-              id: "5cdf0e7a-fc1b-4562-aa62-16ce70173ea7",
-              title: "Level 2",
-              users: 2,
-              channel_points: 500,
-              top_predictors: null,
-              color: "BLUE",
-            },
-          ],
-          prediction_window: 200,
-          status: "ACTIVE",
-          created_at: "2022-06-27T19:29:55.034259659Z",
-          ended_at: null,
-          locked_at: null,
-        },
-      ],
-    };
-
-    if (data === null && import.meta.env.PROD) {
-      console.log("ERROR: no predictions to fetch");
-      return;
-    }
-    const activePrediction = data.shift();
-    this.leftPrediction = activePrediction.outcomes[0];
-    this.rightPrediction = activePrediction.outcomes[1];
-    // console.log({ activePrediction });
+    this.fetchPredictionInterval(userId, headers);
   },
-  async mounted() {},
   watch: {},
   methods: {
     generateRandomString(length) {
@@ -118,6 +71,65 @@ export default {
     authorize() {
       localStorage.login = "true";
     },
+    fetchPredictionInterval(userId, headers) {
+      const { data: _data } = {
+        data: [
+          {
+            id: "f6a64b42-02be-450f-9637-b22813720a57",
+            broadcaster_id: "123456",
+            broadcaster_name: "smartysmartmaster",
+            broadcaster_login: "smartysmartmaster",
+            title: "What level will I reach today?",
+            winning_outcome_id: null,
+            outcomes: [
+              {
+                id: "5cdf0e7a-fc1b-4562-aa62-16ce70173ea7",
+                title: "Pandaleo102222",
+                users: 1,
+                channel_points: 5000,
+                top_predictors: null,
+                color: "BLUE",
+              },
+              {
+                id: "5cdf0e7a-fc1b-4562-aa62-16ce70173ea7",
+                title: "Level 2",
+                users: 2,
+                channel_points: 500,
+                top_predictors: null,
+                color: "BLUE",
+              },
+            ],
+            prediction_window: 200,
+            status: "ACTIVE",
+            created_at: "2022-06-27T19:29:55.034259659Z",
+            ended_at: null,
+            locked_at: null,
+          },
+        ],
+      };
+
+      if (import.meta.env.DEV) {
+        const activePrediction = _data.shift();
+        this.leftPrediction = activePrediction.outcomes[0];
+        this.rightPrediction = activePrediction.outcomes[1];
+        // FIXME: delete return if you need real prediction
+        // return;
+      }
+      setInterval(async () => {
+        const { data } = await fetch(
+          `https://api.twitch.tv/helix/predictions?broadcaster_id=${userId}`,
+          { headers }
+        ).then((v) => v.json());
+
+        if (data === null) {
+          console.log("ERROR: no predictions to fetch");
+          return;
+        }
+        const activePrediction = data.shift();
+        this.leftPrediction = activePrediction.outcomes[0];
+        this.rightPrediction = activePrediction.outcomes[1];
+      }, 10000);
+    },
   },
 };
 </script>
@@ -126,6 +138,7 @@ export default {
   <a :href="authUrl" @click="authorize" class="connectButton" v-if="!isLoggedIn"
     >Connect</a
   >
+  <div v-if="this.error">{{ error }}</div>
   <PredictionCounter
     v-if="isLoggedIn && leftPrediction && rightPrediction"
     :left="leftPrediction"
