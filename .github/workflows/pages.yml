@@ -35,7 +35,7 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Build project
-        run: export VITE_TWITCH_CLIENT_ID=${{secrets.VITE_TWITCH_CLIENT_ID}} && export VITE_TWITCH_CLIENT_SECRET=${{secrets.VITE_TWITCH_CLIENT_SECRET}} && npm run build
+        run: export VITE_TWITCH_CLIENT_ID=${{secrets.VITE_TWITCH_CLIENT_ID}} && export VITE_TWITCH_CLIENT_SECRET=${{secrets.VITE_TWITCH_CLIENT_SECRET}} && export VITE_SOCKET_PORT=${{secrets.VITE_SOCKET_PORT}} && export VITE_BACKEND_BASE_URL=${{secrets.VITE_BACKEND_BASE_URL}} && npm run build
 
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v3
