@@ -69,7 +69,7 @@ export default {
 
 <style scoped>
 .overlayContainer {
-  background-color: lightgray;
+  /* background-color: lightgray; */
   font-family: "Nunito Sans";
   font-size: 1.5rem;
   font-weight: bold;
