@@ -4,7 +4,7 @@ import { RouterLink } from "vue-router";
 <template>
   <div>
     <RouterLink
-      v-for="route in this.$router.options.routes"
+      v-for="route in $router.options.routes"
       :key="route.path"
       :to="route.path"
       >{{ route.name }}</RouterLink
