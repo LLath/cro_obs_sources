@@ -9,6 +9,7 @@ export default {
       MAPS,
       filteredMaps: [],
       isMapSearch: false,
+      mapContext: "",
     };
   },
   methods: {

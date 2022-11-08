@@ -1,5 +1,5 @@
 <script>
-import { socket } from "../services/socketio.service";
+import { socket, reconnectSocket } from "../services/socketio.service";
 import MapsTool from "../components/MapsTool.vue";
 export default {
   components: {
@@ -7,32 +7,44 @@ export default {
   },
   data() {
     return {
-      teamA: "",
-      scoreA: 0,
-      isAttack: "A",
-      teamB: "",
-      scoreB: 0,
-      firstTo: 3,
-      mapCount: 1,
-      isPush: false,
+      controlledData: {
+        teamA: "",
+        scoreA: 0,
+        isAttack: "A",
+        teamB: "",
+        scoreB: 0,
+        firstTo: 3,
+        mapCount: 1,
+        isPush: false,
+      },
       display: { message: "", overlay: "" },
       page: "ingame",
+      tempReroute: "",
+      socket,
     };
   },
   methods: {
     updateData() {
-      const updateObject = Object.assign({}, this.$data);
-      socket.emit("update:saved", JSON.stringify(updateObject));
+      const updateObject = Object.assign({}, this.controlledData);
+      console.log(socket);
+      this.socket.emit("update:saved", JSON.stringify(updateObject));
       this.display.overlay = "Successful send to overlay";
     },
     swapTeams() {
-      [this.teamA, this.teamB, this.scoreA, this.scoreB] = [
-        this.teamB,
-        this.teamA,
-        this.scoreB,
-        this.scoreA,
+      [
+        this.controlledData.teamA,
+        this.controlledData.teamB,
+        this.controlledData.scoreA,
+        this.controlledData.scoreB,
+      ] = [
+        this.controlledData.teamB,
+        this.controlledData.teamA,
+        this.controlledData.scoreB,
+        this.controlledData.scoreA,
       ];
-      this.isAttack = ["A", "B"][["B", "A"].indexOf(this.isAttack)];
+      this.controlledData.isAttack = ["A", "B"][
+        ["B", "A"].indexOf(this.controlledData.isAttack)
+      ];
       this.display.message = "Swapped teams";
       this.updateData();
     },
@@ -40,8 +52,12 @@ export default {
       if (this.page === value) {
         return;
       }
-      socket.emit("page:change", value);
+      this.socket.emit("page:change", value);
       this.page = value;
+    },
+    useNgrok() {
+      console.log(this.tempReroute);
+      this.socket = reconnectSocket(socket, this.tempReroute);
     },
   },
   watch: {
@@ -69,48 +85,68 @@ export default {
       <div class="left">
         <p>Left Team</p>
         <label for="team">Name</label>
-        <input type="text" id="team" v-model="teamA" />
+        <input type="text" id="team" v-model="controlledData.teamA" />
         <label for="score">Score</label>
-        <input type="number" id="score" v-model="scoreA" min="0" />
+        <input
+          type="number"
+          id="score"
+          v-model="controlledData.scoreA"
+          min="0"
+        />
         <label for="attack" id="radio">Attack</label>
         <input
           type="radio"
           name="attack"
           id="attack"
           value="A"
-          :disabled="isPush"
-          v-model="isAttack"
+          :disabled="controlledData.isPush"
+          v-model="controlledData.isAttack"
         />
       </div>
       <button @click="swapTeams" class="swapButton">⇄</button>
       <div class="right">
         <p>Right Team</p>
         <label for="team">Name</label>
-        <input type="text" id="team" v-model="teamB" />
+        <input type="text" id="team" v-model="controlledData.teamB" />
         <label for="score">Score</label>
-        <input type="number" id="score" v-model="scoreB" min="0" />
+        <input
+          type="number"
+          id="score"
+          v-model="controlledData.scoreB"
+          min="0"
+        />
         <label for="attack">Attack</label>
         <input
           type="radio"
           name="attack"
           id="attack"
           value="B"
-          :disabled="isPush"
-          v-model="isAttack"
+          :disabled="controlledData.isPush"
+          v-model="controlledData.isAttack"
         />
       </div>
     </div>
     <div class="mapContainer">
-      <label for="mapCount">Map?</label>
-      <input type="number" v-model="mapCount" min="1" id="mapCount" />
+      <label for="controlledData.mapCount">Map?</label>
+      <input
+        type="number"
+        v-model="controlledData.mapCount"
+        min="1"
+        id="controlledData.mapCount"
+      />
       <label for="mode">First to</label>
-      <input type="number" v-model="firstTo" id="mode" />
+      <input type="number" v-model="controlledData.firstTo" id="mode" />
     </div>
     <div class="lastRow">
       <button @click="updateData" class="update">Update</button>
       <div>
-        <label for="isPush">No Attack/Defense</label>
-        <input type="checkbox" id="isPush" v-model="isPush" :value="isPush" />
+        <label for="controlledData.isPush">No Attack/Defense</label>
+        <input
+          type="checkbox"
+          id="controlledData.isPush"
+          v-model="controlledData.isPush"
+          :value="controlledData.isPush"
+        />
       </div>
       <div
         class="feedbackMessage"
@@ -139,6 +175,11 @@ export default {
     <div class="mapChoiceContainer">
       <MapsTool title="Team A" />
       <MapsTool title="Team B" />
+    </div>
+    <div>
+      <h2>DEV</h2>
+      <input type="text" v-model="tempReroute" />
+      <button @click="useNgrok">Change temp https url</button>
     </div>
   </div>
 </template>
