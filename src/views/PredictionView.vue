@@ -12,9 +12,15 @@ export default {
       leftPrediction: "",
       rightPrediction: "",
       error: "",
+      showDisconnect: false,
     };
   },
   async mounted() {
+    document.addEventListener("mouseover", () => (this.showDisconnect = true));
+    document.addEventListener(
+      "mouseleave",
+      () => (this.showDisconnect = false)
+    );
     let redirect_uri = "https://llath.github.io/cro_obs_sources/prediction";
     if (localStorage.login) {
       this.isLoggedIn = localStorage.login;
@@ -56,7 +62,9 @@ export default {
     const userId = user?.data.shift().id;
 
     if (userId === undefined) {
-      console.log("ERROR: undefined user; access_token");
+      const msg = "ERROR: undefined user; access_token";
+      console.log(msg);
+      this.error = msg;
       return;
     }
     this.fetchPredictionInterval(userId, headers);
@@ -130,6 +138,9 @@ export default {
         this.rightPrediction = activePrediction.outcomes[1];
       }, 10000);
     },
+    disconnect() {
+      localStorage.clear();
+    },
   },
 };
 </script>
@@ -137,6 +148,13 @@ export default {
 <template>
   <a :href="authUrl" @click="authorize" class="connectButton" v-if="!isLoggedIn"
     >Connect</a
+  >
+  <a
+    href="/cro_obs_sources/prediction"
+    v-if="isLoggedIn && showDisconnect"
+    class="disconnectButton"
+    @click="disconnect"
+    >Disconnect</a
   >
   <div v-if="this.error">{{ error }}</div>
   <PredictionCounter
@@ -152,15 +170,17 @@ export default {
   height: 1080px;
   /* background-image: url("../assets/Caster_Overlay.jpg"); */
 }
-.connectButton {
+a {
+  background-color: black;
+  text-decoration: none;
+  color: white;
+}
+.connectButton,
+.disconnectButton {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
   font-size: 7rem;
-  background-color: black;
-  color: white;
-  text-decoration: none;
 }
 </style>

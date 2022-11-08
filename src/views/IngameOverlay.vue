@@ -57,7 +57,7 @@ export default {
     </div>
     <div class="middle">
       <span>MAP {{ data.mapCount }}</span>
-      <span> - First to {{ data.firstTo }}</span>
+      <span> - Best of {{ data.firstTo }}</span>
     </div>
     <div class="right">
       <span :class="attackB" class="modeContainer"></span>
