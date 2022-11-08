@@ -1,14 +1,19 @@
-<script setup>
+<script>
 import { RouterLink } from "vue-router";
+export default {
+  components: [RouterLink],
+  data() {
+    return {
+      routes: this.$router.options.routes,
+    };
+  },
+};
 </script>
 <template>
   <div>
-    <RouterLink
-      v-for="route in $router.options.routes"
-      :key="route.path"
-      :to="route.path"
-      >{{ route.name }}</RouterLink
-    >
+    <RouterLink v-for="route in routes" :key="route.path" :to="route.path">{{
+      route.name
+    }}</RouterLink>
   </div>
 </template>
 
