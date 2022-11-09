@@ -129,10 +129,10 @@ export default {
           { headers }
         ).then((v) => v.json());
 
-        if (data === null) {
-          console.log("ERROR: no predictions to fetch");
-          return;
-        }
+        // if (data === null) {
+        //   console.log("ERROR: no predictions to fetch");
+        //   return;
+        // }
         const activePrediction = data.shift();
         this.leftPrediction = activePrediction.outcomes[0];
         this.rightPrediction = activePrediction.outcomes[1];
