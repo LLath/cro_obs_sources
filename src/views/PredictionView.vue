@@ -35,7 +35,7 @@ export default {
       this.CSRF_TOKEN = this.generateRandomString(25);
       this.authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${
         import.meta.env.VITE_TWITCH_CLIENT_ID
-      }&redirect_uri=${redirect_uri}&scope=${encodeURIComponent(
+      }&force_verify=true&redirect_uri=${redirect_uri}&scope=${encodeURIComponent(
         "channel:read:predictions"
       )}&state=${this.CSRF_TOKEN}`;
 
