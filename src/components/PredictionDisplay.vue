@@ -1,41 +1,36 @@
 <script>
 export default {
-  props: ["left", "right"],
+  props: ["headers", "userId"],
   data() {
     return {
       twitchName: "",
       leftPercent: 0,
       rightPercent: 0,
+      leftPrediction: { title: "", channel_points: "" },
+      rightPrediction: { title: "", channel_points: "" },
     };
   },
-  mounted() {
-    const [leftPercent, rightPercent] = this.calculatePercent(
-      this.left.channel_points,
-      this.right.channel_points
-    );
-    this.leftPercent = leftPercent;
-    this.rightPercent = rightPercent;
+  computed: {
+    predictionChannelPoints() {
+      return [
+        this.leftPrediction.channel_points,
+        this.rightPrediction.channel_points,
+      ];
+    },
   },
-  watch: {},
+  mounted() {
+    this.fetchPredictionInterval();
+  },
+  watch: {
+    predictionChannelPoints(current) {
+      this.calculatePercent(...current);
+    },
+  },
   methods: {
     calculatePercent(left, right) {
-      console.log(import.meta.env.DEV);
-      if (import.meta.env.DEV) {
-        let devCounter = 0;
-        setInterval(() => {
-          if (devCounter == 98) {
-            devCounter = 0;
-          }
-          this.leftPercent = devCounter + 1;
-          this.rightPercent = devCounter + 2;
-          devCounter += 1;
-          return [devCounter + 1, devCounter + 2];
-        }, 500);
-      }
       const gesamt = left + right;
-      const leftP = Math.round((left / gesamt) * 100);
-      const rightP = Math.round((right / gesamt) * 100);
-      return [leftP, rightP];
+      this.leftPercent = Math.round((left / gesamt) * 100);
+      this.rightPercent = Math.round((right / gesamt) * 100);
     },
     checkNameLength(name) {
       const MAX_LENGTH = 11;
@@ -44,14 +39,79 @@ export default {
       }
       return name;
     },
+    fetchPredictionInterval() {
+      const { data: _data } = {
+        data: [
+          {
+            id: "f6a64b42-02be-450f-9637-b22813720a57",
+            broadcaster_id: "123456",
+            broadcaster_name: "smartysmartmaster",
+            broadcaster_login: "smartysmartmaster",
+            title: "What level will I reach today?",
+            winning_outcome_id: null,
+            outcomes: [
+              {
+                id: "5cdf0e7a-fc1b-4562-aa62-16ce70173ea7",
+                title: "Pandaleo102222",
+                users: 1,
+                channel_points: 5000,
+                top_predictors: null,
+                color: "BLUE",
+              },
+              {
+                id: "5cdf0e7a-fc1b-4562-aa62-16ce70173ea7",
+                title: "Level 2",
+                users: 2,
+                channel_points: 500,
+                top_predictors: null,
+                color: "BLUE",
+              },
+            ],
+            prediction_window: 200,
+            status: "ACTIVE",
+            created_at: "2022-06-27T19:29:55.034259659Z",
+            ended_at: null,
+            locked_at: null,
+          },
+        ],
+      };
+
+      if (import.meta.env.DEV) {
+        const activePrediction = _data.shift();
+        this.leftPrediction = activePrediction.outcomes[0];
+        this.rightPrediction = activePrediction.outcomes[1];
+        setInterval(() => {
+          this.leftPrediction.channel_points = Math.round(Math.random() * 100);
+          this.rightPrediction.channel_points = Math.round(Math.random() * 100);
+        }, 500);
+        // FIXME: delete return if you need real prediction
+        return;
+      }
+      setInterval(async () => {
+        const { data } = await fetch(
+          `https://api.twitch.tv/helix/predictions?broadcaster_id=${this.userId}`,
+          { headers: this.headers }
+        ).then((v) => v.json());
+
+        if (data === null) {
+          console.log("ERROR: no predictions to fetch");
+          // this.leftPrediction = this.leftPrediction + 1;
+          // this.rightPrediction = this.rightPrediction + 2;
+          return;
+        }
+        const activePrediction = data.shift();
+        this.leftPrediction = activePrediction.outcomes[0];
+        this.rightPrediction = activePrediction.outcomes[1];
+      }, 2000);
+    },
   },
 };
 </script>
 
 <template>
   <div class="predictionTitleContainer">
-    <h3>{{ checkNameLength(left.title) }}</h3>
-    <h3>Team B</h3>
+    <h3>{{ checkNameLength(leftPrediction.title) }}</h3>
+    <h3>{{ checkNameLength(rightPrediction.title) }}</h3>
   </div>
   <div class="predictionContainer">
     <div class="leftPrediction">

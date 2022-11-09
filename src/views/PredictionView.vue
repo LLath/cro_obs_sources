@@ -13,6 +13,11 @@ export default {
       rightPrediction: "",
       error: "",
       showDisconnect: false,
+      headers: {
+        Authorization: "",
+        "Client-Id": "",
+      },
+      userId: "",
     };
   },
   async mounted() {
@@ -51,13 +56,13 @@ export default {
     // }
     const twitchId = import.meta.env.VITE_TWITCH_CLIENT_ID;
     const twitchSecret = access_token;
-    const headers = {
+    this.headers = {
       Authorization: `Bearer ${twitchSecret}`,
       "Client-Id": twitchId,
     };
 
     const user = await fetch("https://api.twitch.tv/helix/users", {
-      headers,
+      headers: this.headers,
     }).then((response) => response.json());
     const userId = user?.data.shift().id;
 
@@ -67,7 +72,7 @@ export default {
       this.error = msg;
       return;
     }
-    this.fetchPredictionInterval(userId, headers);
+    this.userId = userId;
   },
   watch: {},
   methods: {
@@ -79,65 +84,6 @@ export default {
     authorize() {
       localStorage.login = "true";
     },
-    fetchPredictionInterval(userId, headers) {
-      const { data: _data } = {
-        data: [
-          {
-            id: "f6a64b42-02be-450f-9637-b22813720a57",
-            broadcaster_id: "123456",
-            broadcaster_name: "smartysmartmaster",
-            broadcaster_login: "smartysmartmaster",
-            title: "What level will I reach today?",
-            winning_outcome_id: null,
-            outcomes: [
-              {
-                id: "5cdf0e7a-fc1b-4562-aa62-16ce70173ea7",
-                title: "Pandaleo102222",
-                users: 1,
-                channel_points: 5000,
-                top_predictors: null,
-                color: "BLUE",
-              },
-              {
-                id: "5cdf0e7a-fc1b-4562-aa62-16ce70173ea7",
-                title: "Level 2",
-                users: 2,
-                channel_points: 500,
-                top_predictors: null,
-                color: "BLUE",
-              },
-            ],
-            prediction_window: 200,
-            status: "ACTIVE",
-            created_at: "2022-06-27T19:29:55.034259659Z",
-            ended_at: null,
-            locked_at: null,
-          },
-        ],
-      };
-
-      // if (import.meta.env.DEV) {
-      //   const activePrediction = _data.shift();
-      //   this.leftPrediction = activePrediction.outcomes[0];
-      //   this.rightPrediction = activePrediction.outcomes[1];
-      //   // FIXME: delete return if you need real prediction
-      //   return;
-      // }
-      setInterval(async () => {
-        const { data } = await fetch(
-          `https://api.twitch.tv/helix/predictions?broadcaster_id=${userId}`,
-          { headers }
-        ).then((v) => v.json());
-
-        // if (data === null) {
-        //   console.log("ERROR: no predictions to fetch");
-        //   return;
-        // }
-        const activePrediction = data.shift();
-        this.leftPrediction = activePrediction.outcomes[0];
-        this.rightPrediction = activePrediction.outcomes[1];
-      }, 2000);
-    },
     disconnect() {
       localStorage.clear();
     },
@@ -146,22 +92,24 @@ export default {
 </script>
 
 <template>
-  <a :href="authUrl" @click="authorize" class="connectButton" v-if="!isLoggedIn"
-    >Connect</a
-  >
-  <a
-    href="/cro_obs_sources/prediction"
-    v-if="isLoggedIn && showDisconnect"
-    class="disconnectButton"
-    @click="disconnect"
-    >Disconnect</a
-  >
-  <div v-if="this.error">{{ error }}</div>
-  <PredictionCounter
-    v-if="isLoggedIn && leftPrediction && rightPrediction"
-    :left="leftPrediction"
-    :right="rightPrediction"
-  />
+  <div>
+    <a
+      :href="authUrl"
+      @click="authorize"
+      class="connectButton"
+      v-if="!isLoggedIn"
+      >Connect</a
+    >
+    <a
+      href="/cro_obs_sources/prediction"
+      v-if="isLoggedIn && showDisconnect"
+      class="disconnectButton"
+      @click="disconnect"
+      >Disconnect</a
+    >
+    <div v-if="this.error">{{ error }}</div>
+    <PredictionCounter v-if="isLoggedIn" :headers="headers" :userId="userId" />
+  </div>
 </template>
 
 <style>
