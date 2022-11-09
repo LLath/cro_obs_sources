@@ -8,6 +8,7 @@ export default {
       rightPercent: 0,
       leftPrediction: { title: "", channel_points: "" },
       rightPrediction: { title: "", channel_points: "" },
+      showPrediction: false,
     };
   },
   computed: {
@@ -77,6 +78,7 @@ export default {
       };
 
       if (import.meta.env.DEV) {
+        this.showPrediction = true;
         const activePrediction = _data.shift();
         this.leftPrediction = activePrediction.outcomes[0];
         this.rightPrediction = activePrediction.outcomes[1];
@@ -99,6 +101,17 @@ export default {
           // this.rightPrediction = this.rightPrediction + 2;
           return;
         }
+        if (data.ended_at !== null) {
+          this.showPrediction = false;
+        }
+        if (data.status === "ACTIVE") {
+          this.showPrediction = true;
+        }
+        if (data.locked_at !== null) {
+          setTimeout(() => {
+            this.showPrediction = false;
+          }, 20000);
+        }
         const activePrediction = data.shift();
         this.leftPrediction = activePrediction.outcomes[0];
         this.rightPrediction = activePrediction.outcomes[1];
@@ -109,19 +122,21 @@ export default {
 </script>
 
 <template>
-  <div class="predictionTitleContainer">
-    <h3>{{ checkNameLength(leftPrediction.title) }}</h3>
-    <h3>{{ checkNameLength(rightPrediction.title) }}</h3>
-  </div>
-  <div class="predictionContainer">
-    <div class="leftPrediction">
-      <div id="predictionNumber">
-        <div>{{ leftPercent }}%</div>
-      </div>
+  <div v-if="showPrediction">
+    <div class="predictionTitleContainer">
+      <h3>{{ checkNameLength(leftPrediction.title) }}</h3>
+      <h3>{{ checkNameLength(rightPrediction.title) }}</h3>
     </div>
-    <div class="rightPrediction">
-      <div id="predictionNumber">
-        <div>{{ rightPercent }}%</div>
+    <div class="predictionContainer">
+      <div class="leftPrediction">
+        <div id="predictionNumber">
+          <div>{{ leftPercent }}%</div>
+        </div>
+      </div>
+      <div class="rightPrediction">
+        <div id="predictionNumber">
+          <div>{{ rightPercent }}%</div>
+        </div>
       </div>
     </div>
   </div>
