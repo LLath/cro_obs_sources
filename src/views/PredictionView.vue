@@ -116,13 +116,13 @@ export default {
         ],
       };
 
-      if (import.meta.env.DEV) {
-        const activePrediction = _data.shift();
-        this.leftPrediction = activePrediction.outcomes[0];
-        this.rightPrediction = activePrediction.outcomes[1];
-        // FIXME: delete return if you need real prediction
-        // return;
-      }
+      // if (import.meta.env.DEV) {
+      //   const activePrediction = _data.shift();
+      //   this.leftPrediction = activePrediction.outcomes[0];
+      //   this.rightPrediction = activePrediction.outcomes[1];
+      //   // FIXME: delete return if you need real prediction
+      //   return;
+      // }
       setInterval(async () => {
         const { data } = await fetch(
           `https://api.twitch.tv/helix/predictions?broadcaster_id=${userId}`,
@@ -136,7 +136,7 @@ export default {
         const activePrediction = data.shift();
         this.leftPrediction = activePrediction.outcomes[0];
         this.rightPrediction = activePrediction.outcomes[1];
-      }, 10000);
+      }, 2000);
     },
     disconnect() {
       localStorage.clear();
