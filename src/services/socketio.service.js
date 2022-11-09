@@ -6,6 +6,6 @@ export const socket = io(
 
 export const reconnectSocket = (socket, newUrl) => {
   socket.disconnect();
-  const newSocket = io(`${newUrl}`);
+  const newSocket = io(`${newUrl}`, { "Access-Control-Allow-Origin": "*" });
   return newSocket;
 };
