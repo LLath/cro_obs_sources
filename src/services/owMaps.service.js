@@ -30,7 +30,7 @@ const MAPS_SCREENSHOT = {
     "https://static.wikia.nocookie.net/overwatch_gamepedia/images/9/91/Toronto.jpg/revision/latest?cb=20220926222923",
 };
 
-const MAPS_MODE = {
+export const MAPS_MODE = {
   hybrid: {
     icon: "https://blz-contentstack-images.akamaized.net/v3/assets/blt9c12f249ac15c7ec/bltd55839866311dd1e/62fc2d8bd62b1d3a8d1e5318/Hybrid.svg",
     maps: MAPS_HYBRID,
