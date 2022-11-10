@@ -102,14 +102,15 @@ export default {
         // if (data.ended_at !== null) {
         //   this.showPrediction = false;
         // }
-        if (data.status === "ACTIVE") {
-          this.showPrediction = true;
-        }
+        // if (data.status === "ACTIVE") {
+        //   this.showPrediction = true;
+        // }
         // if (data.locked_at !== null) {
         //   setTimeout(() => {
         //     this.showPrediction = false;
         //   }, 20000);
         // }
+        this.showPrediction = true;
         const activePrediction = data.shift();
         this.leftPrediction = activePrediction.outcomes[0];
         this.rightPrediction = activePrediction.outcomes[1];
