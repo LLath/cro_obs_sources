@@ -1,37 +1,56 @@
 <script>
+import { MAPS_MODE } from "../services/owMaps.service";
+import { receiveMessage, sendMessage } from "../services/socketManager.service";
 export default {
   data() {
     return {
-      score: {},
+      modes: {
+        3: ["escort", "control", "push"],
+        5: ["escort", "control", "push", "hybrid", "control"],
+      },
+      bestOf: "3",
+      score: { left: [], right: [] },
+      MAPS_MODE,
+      teamNames: [],
+      result: 0,
     };
   },
-  mounted() {},
+  computed: {
+    compoundScore() {
+      return [this.score.left, this.score.right];
+    },
+  },
+  mounted() {
+    sendMessage("mounted:scoreTable");
+    receiveMessage("update:score", this.setScore);
+  },
+  methods: {
+    setScore(scoreString) {
+      console.log(scoreString);
+      const { general, matchScore } = JSON.parse(scoreString);
+      this.bestOf = general.bestOf;
+      this.teamNames = [general.teamA, general.teamB];
+      this.score = matchScore;
+    },
+  },
+  watch: {
+    compoundScore(current) {
+      // console.log(current);
+    },
+  },
 };
 </script>
 
 <template>
-  <!-- hybrid https://blz-contentstack-images.akamaized.net/v3/assets/blt9c12f249ac15c7ec/bltd55839866311dd1e/62fc2d8bd62b1d3a8d1e5318/Hybrid.svg -->
   <div class="content">
     <div class="tableContainer">
       <div class="tableRow tableHeader">
         <div class="header">2022 Croverwatch Fall invitational</div>
-        <div class="header">
+        <div class="header" v-for="mode in modes[bestOf]" :key="mode">
           <img
-            src="https://blz-contentstack-images.akamaized.net/v3/assets/blt9c12f249ac15c7ec/blt054b513cd6e95acf/62fd5b4a8972f93d1e325243/Push.svg"
+            :src="MAPS_MODE[mode].icon"
             alt="Overwatch push mode"
             srcset=""
-          />
-        </div>
-        <div class="header">
-          <img
-            src="https://blz-contentstack-images.akamaized.net/v3/assets/blt9c12f249ac15c7ec/blt5ea0d3baf0e2d03f/62fc2d8bda42240856c14598/Control.svg"
-            alt=""
-          />
-        </div>
-        <div class="header">
-          <img
-            src="https://blz-contentstack-images.akamaized.net/v3/assets/blt9c12f249ac15c7ec/bltba08041a1eb32c43/62fc2d8bc317e303559ab5b1/Escort.svg"
-            alt=""
           />
         </div>
         <div class="header"></div>
@@ -41,14 +60,14 @@ export default {
           <span class="teamIcon defaultIcon"> </span>
           <div class="teamName">
             <span>EU/NA</span>
-            <span>Team name</span>
+            <span>{{ teamNames[0] }}</span>
           </div>
         </div>
-        <div class="body mapScore">3</div>
-        <div class="body mapScore">-</div>
-        <div class="body mapScore">-</div>
+        <div class="body mapScore" v-for="n in bestOf" :key="n">
+          {{ score.left[n - 1] || "-" }}
+        </div>
         <div class="body result mapScore">
-          <span class="resultBorder">|</span> 1
+          <span class="resultBorder">|</span>{{ result }}
         </div>
       </div>
       <div class="tableRow tableBody">
@@ -56,7 +75,7 @@ export default {
           <span class="teamIcon croIcon"></span>
           <div class="teamName">
             <span>NA</span>
-            <span>Team name</span>
+            <span>{{ teamNames[1] }}</span>
           </div>
         </div>
         <div class="body mapScore">0</div>
@@ -129,6 +148,7 @@ export default {
 }
 .tableBody {
   background-color: white;
+  height: 2.5rem;
 }
 
 .mapScore {

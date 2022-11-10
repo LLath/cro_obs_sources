@@ -1,21 +1,22 @@
 <script>
 import { socket, reconnectSocket } from "../services/socketio.service";
-import MapsTool from "../components/MapsTool.vue";
 export default {
-  components: {
-    MapsTool,
-  },
   data() {
     return {
       controlledData: {
-        teamA: "",
-        scoreA: 0,
-        isAttack: "A",
-        teamB: "",
-        scoreB: 0,
-        firstTo: 3,
-        mapCount: 1,
-        isPush: false,
+        general: {
+          bestOf: 3,
+          teamA: "",
+          teamB: "",
+        },
+        ingameOverlay: {
+          scoreA: 0,
+          isAttack: "A",
+          scoreB: 0,
+          mapCount: 1,
+          isPush: false,
+        },
+        matchScore: { left: [], right: [] },
       },
       display: { message: "", overlay: "" },
       page: "ingame",
@@ -23,27 +24,34 @@ export default {
       socket,
     };
   },
+  computed: {
+    compoundDisplay() {
+      return [this.display.message, this.display.overlay];
+    },
+  },
   methods: {
-    updateData() {
-      const updateObject = Object.assign({}, this.controlledData);
-      console.log(socket);
-      this.socket.emit("update:saved", JSON.stringify(updateObject));
+    updateData({ target: { value } }) {
+      const updateObject = this.controlledData;
+      this.socket.emit(
+        "update:saved",
+        JSON.stringify({ ...updateObject, update: value })
+      );
       this.display.overlay = "Successful send to overlay";
     },
     swapTeams() {
       [
-        this.controlledData.teamA,
-        this.controlledData.teamB,
-        this.controlledData.scoreA,
-        this.controlledData.scoreB,
+        this.controlledData.general.teamA,
+        this.controlledData.general.teamB,
+        this.controlledData.ingameOverlay.scoreA,
+        this.controlledData.ingameOverlay.scoreB,
       ] = [
-        this.controlledData.teamB,
-        this.controlledData.teamA,
-        this.controlledData.scoreB,
-        this.controlledData.scoreA,
+        this.controlledData.general.teamB,
+        this.controlledData.general.teamA,
+        this.controlledData.ingameOverlay.scoreB,
+        this.controlledData.ingameOverlay.scoreA,
       ];
-      this.controlledData.isAttack = ["A", "B"][
-        ["B", "A"].indexOf(this.controlledData.isAttack)
+      this.controlledData.ingameOverlay.isAttack = ["A", "B"][
+        ["B", "A"].indexOf(this.controlledData.ingameOverlay.isAttack)
       ];
       this.display.message = "Swapped teams";
       this.updateData();
@@ -61,18 +69,18 @@ export default {
     },
   },
   watch: {
-    "display.message"(current) {
+    compoundDisplay(current) {
       if (current !== "") {
         setTimeout(() => {
+          this.display.overlay = "";
           this.display.message = "";
         }, 2500);
       }
     },
-    "display.overlay"(current) {
-      if (current !== "") {
-        setTimeout(() => {
-          this.display.overlay = "";
-        }, 2500);
+    "controlledData.general.bestOf"(current, prev) {
+      if (current !== prev) {
+        this.controlledData.matchScore.left = [];
+        this.controlledData.matchScore.right = [];
       }
     },
   },
@@ -85,12 +93,12 @@ export default {
       <div class="left">
         <p>Left Team</p>
         <label for="team">Name</label>
-        <input type="text" id="team" v-model="controlledData.teamA" />
+        <input type="text" id="team" v-model="controlledData.general.teamA" />
         <label for="score">Score</label>
         <input
           type="number"
           id="score"
-          v-model="controlledData.scoreA"
+          v-model="controlledData.ingameOverlay.scoreA"
           min="0"
         />
         <label for="attack" id="radio">Attack</label>
@@ -99,20 +107,20 @@ export default {
           name="attack"
           id="attack"
           value="A"
-          :disabled="controlledData.isPush"
-          v-model="controlledData.isAttack"
+          :disabled="controlledData.ingameOverlay.isPush"
+          v-model="controlledData.ingameOverlay.isAttack"
         />
       </div>
       <button @click="swapTeams" class="swapButton">⇄</button>
       <div class="right">
         <p>Right Team</p>
         <label for="team">Name</label>
-        <input type="text" id="team" v-model="controlledData.teamB" />
+        <input type="text" id="team" v-model="controlledData.general.teamB" />
         <label for="score">Score</label>
         <input
           type="number"
           id="score"
-          v-model="controlledData.scoreB"
+          v-model="controlledData.ingameOverlay.scoreB"
           min="0"
         />
         <label for="attack">Attack</label>
@@ -121,31 +129,31 @@ export default {
           name="attack"
           id="attack"
           value="B"
-          :disabled="controlledData.isPush"
-          v-model="controlledData.isAttack"
+          :disabled="controlledData.ingameOverlay.isPush"
+          v-model="controlledData.ingameOverlay.isAttack"
         />
       </div>
     </div>
     <div class="mapContainer">
-      <label for="controlledData.mapCount">Map?</label>
+      <label for="mapCount">Map?</label>
       <input
         type="number"
-        v-model="controlledData.mapCount"
+        v-model="controlledData.ingameOverlay.mapCount"
         min="1"
-        id="controlledData.mapCount"
+        id="mapCount"
       />
       <label for="mode">First to</label>
-      <input type="number" v-model="controlledData.firstTo" id="mode" />
+      <input type="number" v-model="controlledData.general.bestOf" id="mode" />
     </div>
     <div class="lastRow">
-      <button @click="updateData" class="update">Update</button>
+      <button @click="updateData" class="update" value="ingame">Update</button>
       <div>
-        <label for="controlledData.isPush">No Attack/Defense</label>
+        <label for="isPush">No Attack/Defense</label>
         <input
           type="checkbox"
-          id="controlledData.isPush"
-          v-model="controlledData.isPush"
-          :value="controlledData.isPush"
+          id="isPush"
+          v-model="controlledData.ingameOverlay.isPush"
+          :value="controlledData.ingameOverlay.isPush"
         />
       </div>
       <div
@@ -172,9 +180,35 @@ export default {
         Score Table
       </button>
     </div>
-    <div class="mapChoiceContainer">
+    <!-- <div class="mapChoiceContainer">
       <MapsTool title="Team A" />
       <MapsTool title="Team B" />
+    </div> -->
+    <div>
+      <h2>Score</h2>
+      <div>
+        <div class="scoreTableRow">
+          <h3>{{ controlledData.general.teamA }}</h3>
+          <input
+            v-for="n in controlledData.general.bestOf"
+            :key="n"
+            type="text"
+            placeholder="-"
+            v-model="controlledData.matchScore.left[n - 1]"
+          />
+        </div>
+        <div class="scoreTableRow">
+          <h3>{{ controlledData.general.teamB }}</h3>
+          <input
+            v-for="n in controlledData.general.bestOf"
+            :key="n"
+            type="text"
+            placeholder="-"
+            v-model="controlledData.matchScore.right[n - 1]"
+          />
+        </div>
+        <button @click="updateData" value="score">Update score</button>
+      </div>
     </div>
     <div>
       <h2>DEV</h2>
@@ -261,5 +295,15 @@ input {
 .teamMapContainer {
   display: flex;
   width: 50%;
+}
+.scoreTableRow {
+  display: flex;
+  gap: 1rem;
+}
+.scoreTableRow input {
+  width: 3rem;
+}
+.scoreTableRow h3 {
+  width: 10rem;
 }
 </style>

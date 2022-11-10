@@ -1,7 +1,7 @@
 <script>
 import IngameOverlay from "./IngameOverlay.vue";
 import ScoreTable from "./ScoreTable.vue";
-import { setupManager } from "../services/siteManager.service";
+import { setupPage } from "../services/socketManager.service";
 
 export default {
   components: {
@@ -14,11 +14,15 @@ export default {
     };
   },
   mounted() {
-    setupManager(this.setPage);
+    setupPage(this.setPage);
+    if (localStorage.page) {
+      this.page = localStorage.page;
+    }
   },
   methods: {
     setPage(msg) {
       this.page = msg;
+      localStorage.page = msg;
     },
   },
   watch: {

@@ -1,10 +1,11 @@
 <script>
 import { socket } from "../services/socketio.service";
+import { sendMessage } from "../services/socketManager.service";
 
 export default {
   data() {
     return {
-      data: {},
+      data: { general: {}, ingameOverlay: {} },
       attackA: "attack",
       attackB: "defense",
       page: "ingame",
@@ -13,21 +14,26 @@ export default {
   mounted() {
     if (import.meta.env.DEV) {
       this.data = {
-        teamA: "Team A",
-        scoreA: 2,
-        isAttack: "A",
-        teamB: "Team B",
-        scoreB: 0,
-        firstTo: 3,
-        mapCount: 1,
-        isPush: false,
+        general: {
+          bestOf: 3,
+          teamA: "Team A",
+          teamB: "Team B",
+        },
+        ingameOverlay: {
+          scoreA: 2,
+          isAttack: "A",
+          scoreB: 0,
+          mapCount: 1,
+          isPush: false,
+        },
       };
     }
+    sendMessage("mounted:ingameOverlay");
     socket.on("update:overlay", (msg) => (this.data = JSON.parse(msg)));
   },
 
   watch: {
-    "data.isAttack"(current) {
+    "data.ingameOverlay.isAttack"(current) {
       switch (current) {
         case "A":
           this.attackA = "attack";
@@ -39,7 +45,7 @@ export default {
           break;
       }
     },
-    "data.isPush"(current) {
+    "data.ingameOverlay.isPush"(current) {
       if (current) {
         [this.attackA, this.attackB] = ["", ""];
       }
@@ -52,17 +58,19 @@ export default {
   <div class="overlayContainer">
     <div class="left">
       <span :class="attackA" class="modeContainer"></span>
-      <span class="score">{{ data.scoreA }}</span>
-      <p>{{ data.teamA }}</p>
+      <span class="score">{{ data.ingameOverlay.scoreA }}</span>
+      <img src="../assets/cro_black_transparent.png" alt="Team Icon" />
+      <p>{{ data.general.teamA }}</p>
     </div>
     <div class="middle">
-      <span>MAP {{ data.mapCount }}</span>
-      <span> - Best of {{ data.firstTo }}</span>
+      <span>MAP {{ data.ingameOverlay.mapCount }}</span>
+      <span> - Best of {{ data.general.bestOf }}</span>
     </div>
     <div class="right">
       <span :class="attackB" class="modeContainer"></span>
-      <span class="score">{{ data.scoreB }}</span>
-      <p>{{ data.teamB }}</p>
+      <span class="score">{{ data.ingameOverlay.scoreB }}</span>
+      <img src="../assets/guests.png" alt="Team Icon" />
+      <p>{{ data.general.teamB }}</p>
     </div>
   </div>
 </template>
@@ -91,7 +99,7 @@ export default {
   height: 2rem;
   margin-top: 1.5rem;
   display: flex;
-  border: 1px solid white;
+  border: 1px solid lightgray;
   border-radius: 3px;
 }
 .left {
@@ -107,9 +115,14 @@ export default {
   background-color: #df7100;
   /* border-color: white; */
 }
+.left img,
+.right img {
+  width: 2rem;
+  margin: 0 1rem;
+}
 .modeContainer {
   width: calc(2rem - 0.2rem);
-  background-size: 1.5rem;
+  background-size: 1.3rem;
   background-repeat: no-repeat;
   background-position: center;
   margin: 0.1rem;
