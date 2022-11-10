@@ -86,7 +86,7 @@ export default {
           this.leftPrediction.channel_points = Math.round(Math.random() * 100);
           this.rightPrediction.channel_points = Math.round(Math.random() * 100);
         }, 500);
-        // FIXME: delete return if you need real prediction
+        // FIXME: delete return if you need real prediction in dev mode
         return;
       }
       setInterval(async () => {
@@ -97,8 +97,6 @@ export default {
 
         if (data === null) {
           console.log("ERROR: no predictions to fetch");
-          // this.leftPrediction = this.leftPrediction + 1;
-          // this.rightPrediction = this.rightPrediction + 2;
           return;
         }
         if (data.ended_at !== null) {
@@ -122,7 +120,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="showPrediction">
+  <div :class="{ fadeIn: showPrediction, fadeOut: !showPrediction }">
     <div class="predictionTitleContainer">
       <h3>{{ checkNameLength(leftPrediction.title) }}</h3>
       <h3>{{ checkNameLength(rightPrediction.title) }}</h3>
@@ -143,6 +141,34 @@ export default {
 </template>
 
 <style>
+.fadeIn {
+  animation: fadeIn 2s;
+  opacity: 1;
+}
+
+.fadeOut {
+  animation: fadeOut 2s;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 .predictionTitleContainer,
 .predictionContainer {
   color: white;
