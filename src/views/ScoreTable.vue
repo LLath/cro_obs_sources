@@ -8,7 +8,7 @@ export default {
         3: ["escort", "control", "push"],
         5: ["escort", "control", "push", "hybrid", "control"],
       },
-      bestOf: "3",
+      bestOf: 3,
       score: { left: [], right: [] },
       MAPS_MODE,
       teamNames: [],
@@ -78,12 +78,12 @@ export default {
             <span>{{ teamNames[1] }}</span>
           </div>
         </div>
-        <div class="body mapScore">0</div>
-        <div class="body mapScore">-</div>
-        <div class="body mapScore">-</div>
+        <div class="body mapScore" v-for="n in bestOf" :key="n">
+          {{ score.right[n - 1] || "-" }}
+        </div>
         <div class="body result mapScore">
           <span class="resultBorder">|</span>
-          0
+          {{ result }}
         </div>
       </div>
     </div>
