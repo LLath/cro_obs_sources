@@ -99,19 +99,16 @@ export default {
           console.log("ERROR: no predictions to fetch");
           return;
         }
-        // if (data.ended_at !== null) {
-        //   this.showPrediction = false;
-        // }
-        // if (data.status === "ACTIVE") {
-        //   this.showPrediction = true;
-        // }
-        // if (data.locked_at !== null) {
-        //   setTimeout(() => {
-        //     this.showPrediction = false;
-        //   }, 20000);
-        // }
-        this.showPrediction = true;
         const activePrediction = data.shift();
+        if (activePrediction.status === "ACTIVE") {
+          this.showPrediction = true;
+        }
+        if (activePrediction.locked_at !== null) {
+          setTimeout(() => {
+            this.showPrediction = false;
+          }, 60000);
+        }
+        this.showPrediction = true;
         this.leftPrediction = activePrediction.outcomes[0];
         this.rightPrediction = activePrediction.outcomes[1];
       }, 2000);
