@@ -1,5 +1,6 @@
 <script>
 import { socket, reconnectSocket } from "../services/socketio.service";
+
 export default {
   data() {
     return {
@@ -22,6 +23,7 @@ export default {
       page: "ingame",
       tempReroute: "",
       socket,
+      isShown: true,
     };
   },
   computed: {
@@ -66,6 +68,10 @@ export default {
     useNgrok() {
       console.log(this.tempReroute);
       this.socket = reconnectSocket(socket, this.tempReroute);
+    },
+    toggleOverlay() {
+      this.isShown = !this.isShown;
+      this.socket.emit("toggle:ingameOverlay");
     },
   },
   watch: {
@@ -155,6 +161,10 @@ export default {
           v-model="controlledData.ingameOverlay.isPush"
           :value="controlledData.ingameOverlay.isPush"
         />
+      </div>
+      <div>
+        <button @click="toggleOverlay">toggle Overlay</button>
+        {{ isShown }}
       </div>
       <div
         class="feedbackMessage"

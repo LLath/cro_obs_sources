@@ -1,6 +1,7 @@
 <script>
 import { socket } from "../services/socketio.service";
-import { sendMessage } from "../services/socketManager.service";
+import { sendMessage, receiveMessage } from "../services/socketManager.service";
+import { TEAMS } from "../constants/owTeams";
 
 export default {
   data() {
@@ -9,6 +10,8 @@ export default {
       attackA: "attack",
       attackB: "defense",
       page: "ingame",
+      TEAMS,
+      showOverlay: true,
     };
   },
   mounted() {
@@ -30,6 +33,7 @@ export default {
     }
     sendMessage("mounted:ingameOverlay");
     socket.on("update:overlay", (msg) => (this.data = JSON.parse(msg)));
+    receiveMessage("toggle:ingameOverlay:set", this.setVisibility);
   },
 
   watch: {
@@ -51,15 +55,20 @@ export default {
       }
     },
   },
+  methods: {
+    setVisibility() {
+      this.showOverlay = !this.showOverlay;
+    },
+  },
 };
 </script>
 
 <template>
-  <div class="overlayContainer">
+  <div class="overlayContainer" v-if="showOverlay">
     <div class="left">
       <span :class="attackA" class="modeContainer"></span>
       <span class="score">{{ data.ingameOverlay.scoreA }}</span>
-      <img src="../assets/cro_black_transparent.png" alt="Team Icon" />
+      <img :src="'assets/' + TEAMS[data.general.teamA]?.icon" alt="" />
       <p>{{ data.general.teamA }}</p>
     </div>
     <div class="middle">
@@ -69,7 +78,7 @@ export default {
     <div class="right">
       <span :class="attackB" class="modeContainer"></span>
       <span class="score">{{ data.ingameOverlay.scoreB }}</span>
-      <img src="../assets/guests.png" alt="Team Icon" />
+      <img :src="'assets/' + TEAMS[data.general.teamB]?.icon" alt="" />
       <p>{{ data.general.teamB }}</p>
     </div>
   </div>
