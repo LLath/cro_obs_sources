@@ -122,6 +122,7 @@ a {
   background-color: black;
   text-decoration: none;
   color: white;
+  z-index: 2;
 }
 .connectButton,
 .disconnectButton {
