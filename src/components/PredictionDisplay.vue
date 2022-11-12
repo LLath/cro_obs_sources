@@ -95,7 +95,7 @@ export default {
           { headers: this.headers }
         ).then((v) => v.json());
 
-        if (data === null) {
+        if (data === null || data === undefined) {
           console.log("ERROR: no predictions to fetch");
           return;
         }
