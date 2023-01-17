@@ -225,6 +225,12 @@ export default {
       <input type="text" v-model="tempReroute" />
       <button @click="useNgrok">Change temp https url</button>
     </div>
+    <iframe
+      src="https://dashboard.twitch.tv/widgets/guest-star/llath25?auth=2F0XG6BowWzNKuo1SlFD90YYrFM&display=single&slot=1"
+      frameborder="0"
+      height="100%"
+      width="100%"
+    ></iframe>
   </div>
 </template>
 
